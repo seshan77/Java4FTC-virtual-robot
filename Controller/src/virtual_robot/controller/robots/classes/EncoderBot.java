@@ -17,7 +17,7 @@ import virtual_robot.util.AngleUtils;
  * MechanumBot is the controller class for the "mechanum_bot.fxml" markup file.
  *
  */
-@BotConfig(name = "Encoder Bot", filename = "encoder_bot")
+@BotConfig(name = "Mecanum Bot w/ Odometry", filename = "encoder_bot")
 public class EncoderBot extends VirtualBot {
 
     MotorType motorType;

@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.ftc16072;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+@Disabled
 @TeleOp(name = "mecanum field relative opmode", group = "ftc16072")
 public class MecanumFieldRelativeOpMode extends OpMode {
     private Robot robot = new Robot();
