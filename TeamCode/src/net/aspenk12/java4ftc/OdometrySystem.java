@@ -1,4 +1,4 @@
-package net.aspenk12.java4ftc.ps5;
+package net.aspenk12.java4ftc;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;

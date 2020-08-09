@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import net.aspenk12.java4ftc.ps5.OdometrySystem;
+import net.aspenk12.java4ftc.OdometrySystem;
 
 /**
  * TeleOp op mode to test odometry with three "dead-wheel" encoders.
