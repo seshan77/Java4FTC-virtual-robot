@@ -7,8 +7,8 @@ class SampleTest {
 
     @Test
     public void testSomething() {
-        String hello = "Hello";
-        assertEquals("Hello", hello);
+        String greeting = "Hello";
+        assertEquals("Hello World", greeting);
     }
 
 }
