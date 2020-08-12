@@ -1,4 +1,4 @@
-package net.aspenk12.java4ftc;
+package net.aspenk12.java4ftc.ps4;
 
 public class GridLogger {
     private TestWriter writer;
