@@ -73,7 +73,7 @@ public class LinearAuto extends LinearOpMode {
     }
 
 
-    public void drive(int ticks, double targetPower, Double targetAngle, double startPower, double endPower){
+    public void drive(int ticks, double targetPower, Double targetAngle, double startPower, double endPower) {
 
         double gain = 0.0000005;
         double accelRate = 0.1;
@@ -88,12 +88,12 @@ public class LinearAuto extends LinearOpMode {
         runtime.reset();
 
 
-        if(targetAngle == null){
+        if (targetAngle == null) {
             targetAngle = imu.getAngle();
         }
 
         boolean accelerate = true;
-        if(startPower >= targetPower){
+        if (startPower >= targetPower) {
             accelerate = false;
         }
 
@@ -104,50 +104,50 @@ public class LinearAuto extends LinearOpMode {
         double absPower = 0;
         boolean endDecel = false;
 
-        while(!endDecel){
+        while (!endDecel) {
 
-            if(targetPower > 0 && decelerate){
-                if((rightPower+leftPower)/2 <= endPower){
-                   endDecel = true;
+            if (targetPower > 0 && decelerate) {
+                if ((rightPower + leftPower) / 2 <= endPower) {
+                    endDecel = true;
                 }
-            }else if(targetPower < 0 && decelerate){
-                if((rightPower+leftPower)/2 >= endPower){
+            } else if (targetPower < 0 && decelerate) {
+                if ((rightPower + leftPower) / 2 >= endPower) {
                     endDecel = true;
                 }
             }
 
 
-            currentTicks = (fr.getCurrentPosition() + br.getCurrentPosition() + fl.getCurrentPosition() + bl.getCurrentPosition())/4.0;
+            currentTicks = (fr.getCurrentPosition() + br.getCurrentPosition() + fl.getCurrentPosition() + bl.getCurrentPosition()) / 4.0;
 
             double remainingDistance = Math.abs(ticks) - Math.abs(currentTicks);
 
-            absPower = Math.abs((leftPower+rightPower)/2);
+            absPower = Math.abs((leftPower + rightPower) / 2);
 
             //ACCELERATE
-            if(accelerate && absPower < Math.abs(targetPower)){
-                if(targetPower > 0){
+            if (accelerate && absPower < Math.abs(targetPower)) {
+                if (targetPower > 0) {
                     leftPower += accelRate / 100000;
                     rightPower += accelRate / 100000;
-                }else{
+                } else {
                     leftPower -= accelRate / 100000;
                     rightPower -= accelRate / 100000;
                 }
 
                 accelDistance = Math.abs(currentTicks);
 
-                if(endDiff/startDiff <= 4){
+                if (endDiff / startDiff <= 4) {
                     decelDistance = accelDistance * (endDiff / startDiff);
                 }
 
             }
 
             //DECELERATE
-            if(remainingDistance < decelDistance && absPower > Math.abs(endPower)){
+            if (remainingDistance < decelDistance && absPower > Math.abs(endPower)) {
                 decelerate = true;
             }
 
 
-            if(decelerate){
+            if (decelerate) {
                 accelerate = false;
                 if (targetPower < 0) {
                     leftPower += accelRate / 100000;
@@ -175,7 +175,7 @@ public class LinearAuto extends LinearOpMode {
 
 
         setPowerAll(0);
-        }
+    }
 
 
 
