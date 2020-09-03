@@ -8,9 +8,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="First MecanumAutonomous", group="Linear Opmode")
+@TeleOp(name="First Mecanum Autonomous", group="Linear Opmode")
 //@Disabled
 public class LinearAuto extends LinearOpMode {
+    private ElapsedTime runtime = new ElapsedTime();
 
 
     DcMotor fr, fl, br, bl;
@@ -23,8 +24,9 @@ public class LinearAuto extends LinearOpMode {
 
         initialize();                                                   // Initialization of hardware
         waitForStart();                                                 // Wait on START click
-        drive(8000, .8, 0.0,0, 0);             // Drive forward for 3000 ticks at a starting power of 0.5
-        turn(90, 0.5);                        // Turn to the global 90 degrees with a margin of error of 0.5
+        drive(8000, .8, 0.0,0.0, 0.0);
+        drive(1000, .0, 0.0,0.0, 0.0);// Drive forward for 3000 ticks at a starting power of 0.5
+        turn(90, 0.5);
 
 
     }
@@ -73,62 +75,106 @@ public class LinearAuto extends LinearOpMode {
 
     public void drive(int ticks, double targetPower, Double targetAngle, double startPower, double endPower){
 
-        double gain = 0.000001;
-        double currentTicks = 0;
-        double accelRate = .00001;
+        double gain = 0.0000005;
+        double accelRate = 0.1;
         double leftPower = startPower;
         double rightPower = startPower;
-        boolean accelerate = true;
+        double endDiff = Math.pow(targetPower, 2) - Math.pow(endPower, 2);
+        double startDiff = Math.pow(targetPower, 2) - Math.pow(startPower, 2);
+
+        double i = 0;
 
         resetMotors();
+        runtime.reset();
 
 
         if(targetAngle == null){
             targetAngle = imu.getAngle();
         }
 
-
-
-        while( Math.abs(currentTicks) < Math.abs(ticks) ){
-
-            currentTicks = fr.getCurrentPosition() + br.getCurrentPosition() + fl.getCurrentPosition() + bl.getCurrentPosition()/4.0;
-            double absPower = Math.abs((leftPower+rightPower)/2);
-            double remainingDistance = Math.abs(ticks) - Math.abs(currentTicks);
-
-            if (remainingDistance < (Math.pow(absPower, 2)/ 2 * accelRate) - Math.pow(Math.abs(endPower), 2)
-                    && (absPower > Math.abs(endPower))){
-                accelerate = false;
-                if (targetPower < 0) {
-                    leftPower += accelRate;
-                    rightPower += accelRate;
-                } else {
-                    leftPower -= accelRate;
-                    rightPower -= accelRate;
-                }
-            }
-
-
-            if(accelerate && absPower < targetPower) {
-                if(targetPower > 0){
-                    leftPower += accelRate;
-                    rightPower += accelRate;
-                }else{
-                    leftPower -= accelRate;
-                    rightPower -= accelRate;
-                }
-            }
-
-           leftPower = leftPower - (targetAngle - imu.getAngle()) * gain;
-           rightPower = rightPower + (targetAngle - imu.getAngle()) * gain;
-
-           fr.setPower(rightPower);
-           fl.setPower(leftPower);
-           br.setPower(rightPower);
-           bl.setPower(leftPower);
+        boolean accelerate = true;
+        if(startPower >= targetPower){
+            accelerate = false;
         }
 
+        boolean decelerate = false;
+        double accelDistance;
+        double decelDistance = (Math.pow(targetPower * 2500, 2) - Math.pow(endPower * 2500, 2)) / (200000 * accelRate);
+        double currentTicks = 0;
+        double absPower = 0;
+        boolean endDecel = false;
 
-            setPowerAll(0);
+        while(!endDecel){
+
+            if(targetPower > 0 && decelerate){
+                if((rightPower+leftPower)/2 <= endPower){
+                   endDecel = true;
+                }
+            }else if(targetPower < 0 && decelerate){
+                if((rightPower+leftPower)/2 >= endPower){
+                    endDecel = true;
+                }
+            }
+
+
+            currentTicks = (fr.getCurrentPosition() + br.getCurrentPosition() + fl.getCurrentPosition() + bl.getCurrentPosition())/4.0;
+
+            double remainingDistance = Math.abs(ticks) - Math.abs(currentTicks);
+
+            absPower = Math.abs((leftPower+rightPower)/2);
+
+            //ACCELERATE
+            if(accelerate && absPower < Math.abs(targetPower)){
+                if(targetPower > 0){
+                    leftPower += accelRate / 100000;
+                    rightPower += accelRate / 100000;
+                }else{
+                    leftPower -= accelRate / 100000;
+                    rightPower -= accelRate / 100000;
+                }
+
+                accelDistance = Math.abs(currentTicks);
+
+                if(endDiff/startDiff <= 4){
+                    decelDistance = accelDistance * (endDiff / startDiff);
+                }
+
+            }
+
+            //DECELERATE
+            if(remainingDistance < decelDistance && absPower > Math.abs(endPower)){
+                decelerate = true;
+            }
+
+
+            if(decelerate){
+                accelerate = false;
+                if (targetPower < 0) {
+                    leftPower += accelRate / 100000;
+                    rightPower += accelRate / 100000;
+                } else {
+                    leftPower -= accelRate / 100000;
+                    rightPower -= accelRate / 100000;
+                }
+            }
+
+            //PID
+            leftPower -= (targetAngle - imu.getAngle()) * gain;
+            rightPower += (targetAngle - imu.getAngle()) * gain;
+
+            fr.setPower(rightPower);
+            fl.setPower(leftPower);
+            br.setPower(rightPower);
+            bl.setPower(leftPower);
+
+        }
+        telemetry.addData("Status", "Run Time: " + runtime.seconds());
+        telemetry.addData("Status", "End Power: " + absPower);
+        telemetry.addData("Status", "Ticks Traveled: " + currentTicks);
+        telemetry.update();
+
+
+        setPowerAll(0);
         }
 
 
